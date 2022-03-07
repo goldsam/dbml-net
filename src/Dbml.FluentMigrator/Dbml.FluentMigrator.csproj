@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AssemblyName>Dbml.FluentMigrator</AssemblyName>
+        <RootNamespace>Dbml.FluentMigrator</RootNamespace>
+
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>8.0</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Dbml.Core\Dbml.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentMigrator.Abstractions" Version="3.3.2" />
+    </ItemGroup>
+</Project>

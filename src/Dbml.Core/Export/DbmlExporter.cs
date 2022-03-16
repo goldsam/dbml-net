@@ -162,15 +162,96 @@ namespace Dbml.Export
         void ExportTableIndex(TextWriter writer, Database model, Index index)
         {
             //foreach
+            writer.WriteLine("    indexes {");
 
+            if (index.Columns.Count > 1)
+            {
+                writer.Write('(');
+
+                bool firstColumn = true;
+
+                foreach (var indexColumn in index.Columns)
+                {
+                    if (!firstColumn)
+                    {
+                        writer.Write(", ");
+                    }
+
+                    if (indexColumn.Type == IndexColumnType.Expression)
+                    {
+                        writer.Write('`');
+                        writer.Write(indexColumn.Value);
+                        writer.Write('`');
+                    }
+                    else
+                    {
+                        writer.Write(indexColumn.Value);
+                    }
+
+                    firstColumn = false;
+                }
+
+                writer.Write(')');
+            }
+            else
+            {
+                var indexColumn = index.Columns.First();
+                if (indexColumn.Type == IndexColumnType.Expression)
+                {
+                    writer.Write('`');
+                    writer.Write(indexColumn.Value);
+                    writer.Write('`');
+                }
+                else
+                {
+                    writer.Write(indexColumn.Value);
+                }
+            }
+
+            bool firstConstraint = true;
+
+            if (index.PrimaryKey)
+            {
+                writer.Write(" [pk");
+                firstConstraint = false;
+            }
+
+            if (!string.IsNullOrEmpty(index.Type))
+            {
+                writer.Write(firstConstraint ? " [type: " : ", type: ");
+                writer.Write(index.Type.ToLowerInvariant());
+                firstConstraint = false;
+            }
+
+            if (index.Unique)
+            {
+                writer.Write(firstConstraint ? " [unique" : ", unique");
+                firstConstraint = false;
+            }
+            if (!string.IsNullOrEmpty(index.Name))
+            {
+                writer.Write(firstConstraint ? " [name: " : ", name: ");
+                writer.Write(index.Name);
+                firstConstraint = false;
+            }
+
+            if (!firstConstraint)
+            {
+                writer.WriteLine(']');
+            }
+            else
+            {
+                writer.WriteLine();
+            }
         }
+
         void ExportRefs(TextWriter writer, Database model, Schema schema)
         {
 
         }
 
         static bool ShouldWriteSchemaName(Schema schema, Database model) =>
-            !string.Equals(schema.Name, Schema.DefaultSchemaName, StringComparison.OrdinalIgnoreCase) || model.HasDefaultSchema;
+            !string.Equals(schema.Name, model.Schemas.DefaultSchemaName, StringComparison.OrdinalIgnoreCase) || model.Schemas.HasDefaultSchema;
 
         
         static bool NameRequiresQuotes(string value) => value.Any(c => char.IsWhiteSpace(c) || c == '[' || c == ']');
